@@ -2,8 +2,8 @@
 
 YouTube's Data API can set the channel banner (channelBanners.insert +
 brandingSettings.image.bannerExternalUrl) and the description/keywords
-(channels.update). It has no endpoint for the channel avatar, so that one
-image still has to be uploaded in YouTube Studio.
+(channels.update). It has no endpoint for the channel avatar or channel title,
+so those still have to be changed in YouTube Studio.
 
 Usage:
     python scripts/update_channel_branding.py \
@@ -54,6 +54,10 @@ def _writable_branding(existing, description, keywords, banner_url=None):
     body = {"channel": channel}
     if settings.get("watch"):
         body["watch"] = settings["watch"]
+    # channels.update replaces the whole part: preserve the current banner
+    # when this run is not uploading a new one.
+    if settings.get("image"):
+        body["image"] = dict(settings["image"])
     if banner_url:
         body["image"] = {"bannerExternalUrl": banner_url}
     return body
@@ -117,8 +121,11 @@ def main():
     img = bs.get("image", {}) or {}
     print(f"Verified description chars: {len(bch.get('description') or '')}")
     print(f"Verified banner set: {bool(img.get('bannerExternalUrl') or img.get('bannerImageUrl'))}")
-    print("Avatar note: YouTube has no API for the channel avatar. Upload "
-          "branding/channel_avatar_800.png in YouTube Studio → Customisation → Branding.")
+    print("Avatar note: YouTube has no Data API endpoint for the channel avatar. "
+          "Upload branding/channel_avatar_800.png in YouTube Studio → "
+          "Customisation → Branding.")
+    print("Title note: channels.update cannot change the channel title "
+          "(channelTitleUpdateForbidden); rename it in YouTube Studio if needed.")
 
 
 if __name__ == "__main__":
