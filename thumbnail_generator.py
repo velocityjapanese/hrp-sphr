@@ -159,7 +159,12 @@ def create_harpspheric_thumbnail(video_path, output_thumb_path, hook_dict=None,
     img = img.crop((left, top, left + TW, top + TH))
     img = ImageEnhance.Color(img).enhance(1.26)
     img = ImageEnhance.Contrast(img).enhance(1.12)
-    img = ImageEnhance.Brightness(img).enhance(1.04)
+    img = ImageEnhance.Brightness(img).enhance(1.02)
+    # Lift the instrument side so the dark stage does not swallow the harp.
+    arr = np.asarray(img, dtype=np.float32)
+    xx_lift = np.arange(TW, dtype=np.float32)[None, :]
+    lift = 1.0 + 0.24 * np.clip((650.0 - xx_lift) / 650.0, 0, 1) ** 0.8
+    img = Image.fromarray(np.clip(arr * lift[:, :, None], 0, 255).astype(np.uint8))
 
     overlay = Image.new("RGBA", (TW, TH), (0, 0, 0, 0))
 
@@ -167,9 +172,9 @@ def create_harpspheric_thumbnail(video_path, output_thumb_path, hook_dict=None,
     # title column gets a clean, dark stage. The top boost tames the sheet
     # panel that the render bakes into the upper right.
     yy, xx = np.mgrid[0:TH, 0:TW].astype(np.float32)
-    right = np.clip((xx - 500.0) / 780.0, 0, 1) ** 1.2
+    right = np.clip((xx - 640.0) / 640.0, 0, 1) ** 1.15
     top_boost = (np.clip(1.0 - yy / 370.0, 0, 1) ** 1.3
-                 * np.clip((xx - 620.0) / 660.0, 0, 1) ** 1.1)
+                 * np.clip((xx - 700.0) / 580.0, 0, 1) ** 1.1)
     bottom = np.clip((yy - 560.0) / 160.0, 0, 1) ** 1.5
     alpha = np.clip(242 * right + 112 * top_boost + 46 * bottom, 0, 250)
     scrim = Image.new("RGBA", (TW, TH), (5, 7, 12, 255))
@@ -181,7 +186,7 @@ def create_harpspheric_thumbnail(video_path, output_thumb_path, hook_dict=None,
     # the score itself back as a crisp card (visible sheet music sells the
     # "this is real music" feeling).
     sheet_mask = Image.new("L", (TW, TH), 0)
-    ImageDraw.Draw(sheet_mask).rounded_rectangle((620, -110, 1360, 400), radius=90, fill=255)
+    ImageDraw.Draw(sheet_mask).rounded_rectangle((600, -110, 1360, 400), radius=90, fill=255)
     sheet_mask = sheet_mask.filter(ImageFilter.GaussianBlur(50))
     sheet = Image.new("RGBA", (TW, TH), (4, 6, 11, 255))
     sheet.putalpha(sheet_mask)
@@ -190,7 +195,7 @@ def create_harpspheric_thumbnail(video_path, output_thumb_path, hook_dict=None,
     # The panel's header sits in empty stage above the instrument; mask that top
     # strip fully so no baked title text survives the scrim.
     strip = np.zeros((TH, TW, 4), dtype=np.uint8)
-    sx = np.clip((xx - 520.0) / 80.0, 0, 1)
+    sx = np.clip((xx - 600.0) / 80.0, 0, 1)
     sy = np.clip((135.0 - yy) / 60.0, 0, 1)
     strip[..., 0:3] = (5, 7, 12)
     strip[..., 3] = (250 * sx * sy).astype(np.uint8)
@@ -200,26 +205,17 @@ def create_harpspheric_thumbnail(video_path, output_thumb_path, hook_dict=None,
     # Hide the channel mark baked into the hero frame behind our brand row.
     # Keep the patch narrow: the harp crown starts right beside the wordmark,
     # so a wide top-left rectangle would black it out.
-    patch = np.zeros((92, 340, 4), dtype=np.uint8)
-    ax = np.clip((340.0 - np.arange(340, dtype=np.float32)) / 70.0, 0, 1)
-    ay = np.clip((92.0 - np.arange(92, dtype=np.float32)) / 55.0, 0, 1)
+    patch = np.zeros((80, 220, 4), dtype=np.uint8)
+    ax = np.clip((220.0 - np.arange(220, dtype=np.float32)) / 55.0, 0, 1)
+    ay = np.clip((80.0 - np.arange(80, dtype=np.float32)) / 35.0, 0, 1)
     patch[..., 0:3] = (5, 7, 12)
     patch[..., 3] = (250 * ay[:, None] * ax[None, :]).astype(np.uint8)
-    overlay.alpha_composite(Image.fromarray(patch, "RGBA"), (0, 0))
-
-    # The render bakes the live note badge ("A2 plucked") near the harp's
-    # pluck point. It belongs in the video, not in a thumbnail, and the score
-    # card only covers part of it; soften that patch of stage before the card
-    # is laid down so no stray pill peeks out under the card.
-    badge_patch = Image.new("RGBA", (TW, TH), (0, 0, 0, 0))
-    ImageDraw.Draw(badge_patch).rounded_rectangle((286, 225, 690, 405),
-                                                  radius=40, fill=(5, 7, 12, 255))
-    overlay.alpha_composite(badge_patch.filter(ImageFilter.GaussianBlur(14)))
+    overlay.alpha_composite(Image.fromarray(patch, "RGBA"), (0, 20))
 
     # Original score card: crop the engraved staves straight from the
     # full-resolution frame, lift the contrast, and present them as a framed
     # card above the title column.
-    CARD_X, CARD_Y, CARD_W = 358, 92, 810
+    CARD_X, CARD_Y, CARD_W = 620, 92, 610
     src = full.crop((int(full.width * 0.515), int(full.height * 0.088),
                      int(full.width * 0.96), int(full.height * 0.28)))
     card_h = int(round(src.height * CARD_W / src.width))
