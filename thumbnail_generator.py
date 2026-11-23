@@ -16,6 +16,7 @@ from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
 
 from config import FFMPEG, FINAL_EXPORT_DIR, OUTPUT_DIR
 from render.scene import load_font, palette
+from render.score_layer import WIN_X, WIN_Y, WIN_W, WIN_H
 
 TW, TH = 1280, 720
 TEXT_X = 792
@@ -71,6 +72,24 @@ def _extract_hero(video_path, meta):
         subprocess.run([FFMPEG, "-y", "-v", "error", "-ss", "0.5", "-i", video_path,
                         "-frames:v", "1", "-q:v", "2", out], check=False)
     return out, True
+
+
+def _extract_score_frame(video_path, meta):
+    """A mid-movement frame whose paper score window is full of notation."""
+    section = _hero_section(meta)
+    duration = float(meta.get("duration", 0) or 0)
+    if not duration:
+        duration = _probe_duration(video_path)
+    if section:
+        t = float(section["start"]) + 3.0
+    else:
+        t = duration * 0.35 if duration else 5.0
+    t = max(1.0, min(t, max(1.0, duration - 1.0)))
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    out = os.path.join(OUTPUT_DIR, "_thumb_score_frame.jpg")
+    subprocess.run([FFMPEG, "-y", "-v", "error", "-ss", f"{t:.2f}", "-i", video_path,
+                    "-frames:v", "1", "-q:v", "2", out], check=False)
+    return out
 
 
 def _probe_duration(video_path):
@@ -218,12 +237,20 @@ def create_harpspheric_thumbnail(video_path, output_thumb_path, hook_dict=None,
     # full-resolution frame, lift the contrast, and present them as a framed
     # card above the title column.
     CARD_X, CARD_Y, CARD_W = 620, 92, 610
-    src = full.crop((int(full.width * 0.515), int(full.height * 0.088),
-                     int(full.width * 0.96), int(full.height * 0.28)))
+    # Crop the notation band from a mid-movement page. The hero frame can land
+    # on a page turn, and the full window is too tall for the text column.
+    score_frame_path = _extract_score_frame(video_path, meta)
+    score_frame = Image.open(score_frame_path).convert("RGB")
+    src = score_frame.crop((
+        WIN_X,
+        WIN_Y + int(WIN_H * 0.03),
+        WIN_X + WIN_W,
+        WIN_Y + int(WIN_H * 0.84),
+    ))
     card_h = int(round(src.height * CARD_W / src.width))
     src = src.resize((CARD_W, card_h), Image.Resampling.LANCZOS)
-    src = ImageEnhance.Brightness(src).enhance(1.38)
-    src = ImageEnhance.Contrast(src).enhance(1.3)
+    src = ImageEnhance.Brightness(src).enhance(1.02)
+    src = ImageEnhance.Contrast(src).enhance(1.05)
 
     card_mask = Image.new("L", (CARD_W, card_h), 0)
     ImageDraw.Draw(card_mask).rounded_rectangle((0, 0, CARD_W - 1, card_h - 1),
@@ -241,10 +268,10 @@ def create_harpspheric_thumbnail(video_path, output_thumb_path, hook_dict=None,
     cx0 = CARD_X + CARD_W - chip_w - 12
     cy0 = CARD_Y + card_h - 30
     draw.rounded_rectangle((cx0, cy0, cx0 + chip_w, cy0 + 21), radius=6,
-                           fill=(8, 10, 16, 225),
+                           fill=(74, 50, 30, 235),
                            outline=tuple(pal["accent"]) + (150,), width=1)
     draw.text((cx0 + 9, cy0 + 4), score_chip, font=f_chip,
-              fill=tuple(pal["accent"]) + (255,))
+              fill=(246, 236, 216, 255))
 
     hook = dict(_build_hook(meta, minutes))
     if hook_dict:

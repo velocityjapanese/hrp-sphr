@@ -26,7 +26,7 @@ PITCH_MARGIN_X = 64              # key_table margin used for pitch -> x mapping
 # The harp is a tall, narrow instrument: the movement title lives in the empty
 # stage under the score panel instead of overlapping the neck at the top left.
 TITLE_CENTER_X = 1120
-TITLE_TOP = 530
+TITLE_TOP = 610
 
 # ---------------------------------------------------------------------------
 # Palettes. Values are RGB. Notes are screened onto a near-black background,
