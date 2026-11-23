@@ -10,6 +10,7 @@ import json
 import os
 import subprocess
 
+import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
 
@@ -165,6 +166,14 @@ def create_harpspheric_thumbnail(video_path, output_thumb_path, hook_dict=None,
     xx_lift = np.arange(TW, dtype=np.float32)[None, :]
     lift = 1.0 + 0.24 * np.clip((650.0 - xx_lift) / 650.0, 0, 1) ** 0.8
     img = Image.fromarray(np.clip(arr * lift[:, :, None], 0, 255).astype(np.uint8))
+    # Inpaint the channel mark baked into the video frame; the thumbnail's own
+    # brand row is drawn later, and the stage gradient stays clean beneath it.
+    arr = np.asarray(img, dtype=np.uint8)
+    brand_mask = np.zeros((TH, TW), np.uint8)
+    brand_mask[15:75, 25:215] = 255
+    arr = cv2.inpaint(cv2.cvtColor(arr, cv2.COLOR_RGB2BGR), brand_mask, 10,
+                      cv2.INPAINT_TELEA)
+    img = Image.fromarray(cv2.cvtColor(arr, cv2.COLOR_BGR2RGB))
 
     overlay = Image.new("RGBA", (TW, TH), (0, 0, 0, 0))
 
@@ -205,13 +214,6 @@ def create_harpspheric_thumbnail(video_path, output_thumb_path, hook_dict=None,
     # Hide the channel mark baked into the hero frame behind our brand row.
     # Keep the patch narrow: the harp crown starts right beside the wordmark,
     # so a wide top-left rectangle would black it out.
-    patch = np.zeros((80, 220, 4), dtype=np.uint8)
-    ax = np.clip((220.0 - np.arange(220, dtype=np.float32)) / 55.0, 0, 1)
-    ay = np.clip((80.0 - np.arange(80, dtype=np.float32)) / 35.0, 0, 1)
-    patch[..., 0:3] = (5, 7, 12)
-    patch[..., 3] = (250 * ay[:, None] * ax[None, :]).astype(np.uint8)
-    overlay.alpha_composite(Image.fromarray(patch, "RGBA"), (0, 20))
-
     # Original score card: crop the engraved staves straight from the
     # full-resolution frame, lift the contrast, and present them as a framed
     # card above the title column.
