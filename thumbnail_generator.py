@@ -212,9 +212,9 @@ def create_harpspheric_thumbnail(video_path, output_thumb_path, hook_dict=None,
     # card only covers part of it; soften that patch of stage before the card
     # is laid down so no stray pill peeks out under the card.
     badge_patch = Image.new("RGBA", (TW, TH), (0, 0, 0, 0))
-    ImageDraw.Draw(badge_patch).rounded_rectangle((286, 225, 690, 348),
-                                                  radius=34, fill=(5, 7, 12, 255))
-    overlay.alpha_composite(badge_patch.filter(ImageFilter.GaussianBlur(10)))
+    ImageDraw.Draw(badge_patch).rounded_rectangle((286, 225, 690, 405),
+                                                  radius=40, fill=(5, 7, 12, 255))
+    overlay.alpha_composite(badge_patch.filter(ImageFilter.GaussianBlur(14)))
 
     # Original score card: crop the engraved staves straight from the
     # full-resolution frame, lift the contrast, and present them as a framed
