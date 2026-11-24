@@ -109,5 +109,42 @@
       }
     ],
     "timestamp": "2026-11-23T20:00:53.288740+00:00"
+  },
+  {
+    "video_file": "HarpSpheric_15min_20261124_200231.mp4",
+    "youtube_id": "SvSLaW0cjQs",
+    "youtube_url": "https://youtu.be/SvSLaW0cjQs",
+    "facebook_id": null,
+    "facebook_url": null,
+    "title": "15 Min Relaxing Harp & Piano | Ballad of the Pale Horizon · Original Cinematic Suite (1080p HD)",
+    "piece_title": "Ballad of the Pale Horizon",
+    "seed": 1447324492,
+    "chapters": [
+      {
+        "time": "00:00",
+        "title": "I. Radiance"
+      },
+      {
+        "time": "02:46",
+        "title": "II. Embers"
+      },
+      {
+        "time": "05:29",
+        "title": "III. Snowfall"
+      },
+      {
+        "time": "07:59",
+        "title": "IV. Awakening"
+      },
+      {
+        "time": "10:50",
+        "title": "V. Stillness"
+      },
+      {
+        "time": "13:03",
+        "title": "VI. Drift"
+      }
+    ],
+    "timestamp": "2026-11-24T20:14:01.472494+00:00"
   }
 ]
