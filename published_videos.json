@@ -146,5 +146,42 @@
       }
     ],
     "timestamp": "2026-11-24T20:14:01.472494+00:00"
+  },
+  {
+    "video_file": "HarpSpheric_15min_20261125_190228.mp4",
+    "youtube_id": "X-FkO1bmeRM",
+    "youtube_url": "https://youtu.be/X-FkO1bmeRM",
+    "facebook_id": null,
+    "facebook_url": null,
+    "title": "15 Min Relaxing Harp & Piano | Etude upon the Pale Horizon · Original Cinematic Harp",
+    "piece_title": "Etude upon the Pale Horizon",
+    "seed": 1892351145,
+    "chapters": [
+      {
+        "time": "00:00",
+        "title": "I. Dusk"
+      },
+      {
+        "time": "02:56",
+        "title": "II. Snowfall"
+      },
+      {
+        "time": "05:30",
+        "title": "III. Radiance"
+      },
+      {
+        "time": "07:50",
+        "title": "IV. Stillness"
+      },
+      {
+        "time": "10:35",
+        "title": "V. Embers"
+      },
+      {
+        "time": "12:35",
+        "title": "VI. Horizon"
+      }
+    ],
+    "timestamp": "2026-11-25T19:17:28.411149+00:00"
   }
 ]
