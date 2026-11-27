@@ -220,5 +220,42 @@
       }
     ],
     "timestamp": "2026-11-26T19:11:41.223715+00:00"
+  },
+  {
+    "video_file": "HarpSpheric_15min_20261127_184637.mp4",
+    "youtube_id": "6XKSE2SLMQk",
+    "youtube_url": "https://youtu.be/6XKSE2SLMQk",
+    "facebook_id": null,
+    "facebook_url": null,
+    "title": "15 Min Relaxing Harp & Piano | Pastorale beyond the First Light · Original Cinematic Harp",
+    "piece_title": "Pastorale beyond the First Light",
+    "seed": 1557494070,
+    "chapters": [
+      {
+        "time": "00:00",
+        "title": "I. Embers"
+      },
+      {
+        "time": "02:53",
+        "title": "II. Horizon"
+      },
+      {
+        "time": "05:40",
+        "title": "III. Return"
+      },
+      {
+        "time": "07:57",
+        "title": "IV. Ascent"
+      },
+      {
+        "time": "10:55",
+        "title": "V. Awakening"
+      },
+      {
+        "time": "12:53",
+        "title": "VI. Dusk"
+      }
+    ],
+    "timestamp": "2026-11-27T18:59:32.082504+00:00"
   }
 ]
